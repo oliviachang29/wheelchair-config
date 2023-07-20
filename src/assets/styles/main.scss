@@ -1,136 +1,44 @@
-// TODO KYARO RED
-#map-container {
-    // REMOVE ON FINAL
-    height: 80vh;
-    width: 90vw;
-    margin: auto;
-    position: relative;
-}
-
-#map-overlay {
-    display: none;
-    @media (max-width: 500px) {
-        width: 95%;
-    }
-    width: 400px;
-    height: 100%;
-    position: absolute;
-    left: 0;
-    top: 0;
-    background-color: white;
-    z-index: 999;
-    box-shadow: 20px 0 5px -15px rgba(0,0,0,0.5);
-    overflow-y: auto;
-}
-
-#map-darken-overlay {
-    display: none;
-    width: 100%;
-    height: 100%;
-    z-index: 50;
-    background-color: rgba(0,0,0,0.2);
-    position: absolute;
-    user-select: none;
-    pointer-events: none;
-}
-
-#map {
-    height: 100%;
-    width: 100%;
-    z-index: 0;
-}
-
-#map-recenter-button {
-    position: absolute;
-    right: 0;
-    bottom: 0;
-    border: 0;
-    margin: 30px;
-    border-radius: 100%;
-    padding: 15px 15px 11px 12px;
-    background-color: white;
-    z-index: 50;
-    box-shadow: 1px 1px 4px 1px rgba(0, 0, 0, 0.2);
-}
-
-#map-recenter-button:hover {
-    cursor: pointer;
-}
-
-#map-recenter-button svg {
-    color: red;
-}
-
-#map-content {
-    padding: 0 20px 30px;
-}
-
-#map-overlay-close-button {
-    width: 100%;
-    margin-top: 30px;
-}
-
-* {box-sizing:border-box}
-
-.slideshow-container {
-  position: relative;
-  margin: auto;
-}
-
-.slideshow-slide {
-  display: none;
-  min-height: 150px;
-  background-color: rgba(0,0,0,0.2);
-}
-
-.slideshow-slide img {
-    // background-color: rgba(0,0,0,0.2);
-    display: none;
-    width: 100%;
-}
-
-/* Next & previous buttons */
-.plusSlides-button {
-  cursor: pointer;
-  position: absolute;
-  top: 50%;
-  width: auto;
-  margin-top: -22px;
-  padding: 16px;
-  color: red;
-  font-weight: bold;
-  font-size: 18px;
-  user-select: none;
-  background-color: white;
-//   background-color: rgba(255,255,255,0.5);
-}
-
-#plusSlides-button-next {
-  right: 0;
-}
-
-/* Fading animation */
-.fade {
-  animation-name: fade;
-  animation-duration: 1s;
-}
-
-@keyframes fade {
-  from {opacity: .75}
-  to {opacity: 1}
-}
-
-// DON'T INCLUDE
-
-html, body {
-    background-color: #eee;
-}
-
-#map-content-name {
+* {
     font-family: Proxima Nova;
 }
 
-#map-content-description {
-    font-family: Roboto;
+// copy over
+
+#pb-container {
+    width: 90%;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: row;
 }
 
+#pb-image-container {
+    width: 50%;
+    position: relative;
+}
+
+.product-image {
+    width: 100%;
+    object-fit: fill;
+    position: absolute;
+}
+
+#product-image__base {
+    z-index: 0;
+}
+
+.product-image__overlay {
+    z-index: 10;
+}
+
+#pb-configs__container {
+    width: 50%;
+    padding: 0 30px;
+}
+
+.pb-configs__title {
+    text-transform: uppercase;
+}
+
+.pb-configs__config-container {
+    margin-bottom: 30px;
+}

@@ -1,176 +1,117 @@
-// Variables
-const KYARO_COORDINATES = [-3.3829580836974515, 36.68298617546179]
 const GSHEETS_URL =
-    'https://opensheet.elk.sh/1vUGSs1FqUSo0t5R7APubXQrAFUZUmn4De1mDafpi_4k/public'
-const GSHEETS_REGEX = /https:\/\/drive\.google\.com\/file\/d\/(.*?)\/.*?\?usp=sharing/
-const MAX_NUM_IMAGES = 4
+    'https://opensheet.elk.sh/1tD8HiKg5KLKKomSIPpe7nzZ2F5ryHQJEk9pGgdjpYoc'
+const CONFIGS_GSHEETS_URL = `${GSHEETS_URL}/config%20panel`
+const IMAGES_GSHEETS_URL = `${GSHEETS_URL}/image%20link%20admin%20panel`
 
-const markers = []
-const latLngs = []
-// todo change all vars to let
-var isOpen = false
-var selectedMarkerId = -1
-var slideIndex = 1;
+const CONFIGS_ARRAY = JSON.parse(
+    '[{"":"","name":"color","type":"base","parent":"","parent_dependency":"","option_type":"multiple_choice","color_dependent":"TRUE","options":"orange, red, blue","number of options":"3"},{"":"","name":"fabric","type":"base","parent":"","parent_dependency":"","option_type":"multiple_choice","color_dependent":"TRUE","options":"solid, kitenge","number of options":"2"},{"":"","name":"seat_back","type":"base","parent":"","parent_dependency":"","option_type":"multiple_choice","color_dependent":"TRUE","options":"hard_seat_back, soft_seat_back","number of options":"2"},{"":"","name":"table","type":"overlay","parent":"","parent_dependency":"","option_type":"true_false","color_dependent":"TRUE","options":"yes, no","number of options":"2"},{"":"","name":"tricycle_attachment","type":"overlay","parent":"seat back","parent_dependency":"soft_seat_back","option_type":"true_false","color_dependent":"TRUE","options":"yes, no","number of options":"2"},{"":"","name":"headrest","type":"overlay","parent":"seat back","parent_dependency":"hard_seat_back","option_type":"true_false","color_dependent":"TRUE","options":"yes, no","number of options":"2"},{"":"","name":"harness","type":"overlay","parent":"seat back","parent_dependency":"hard_seat_back","option_type":"true_false","color_dependent":"FALSE","options":"yes, no","number of options":"2"},{"":"","name":"lateral_support","type":"overlay","parent":"seat back","parent_dependency":"hard_seat_back","option_type":"true_false","color_dependent":"FALSE","options":"yes, no","number of options":"2"},{"":"","name":"hip_belt","type":"overlay","parent":"seat back","parent_dependency":"hard_seat_back","option_type":"true_false","color_dependent":"FALSE","options":"yes, no","number of options":"2"},{"":"","name":"knee_separator","type":"overlay","parent":"","parent_dependency":"","option_type":"true_false","color_dependent":"FALSE","options":"yes, no","number of options":"2"}]'
+)
+const CONFIGS_OBJECT = {};
 
-// Functions
-
-// map functions
-function toggleMapOverlay() {
-    $('#map-overlay').animate({ width: 'toggle' }, 350)
-    isOpen = !isOpen
-    $("#map-darken-overlay").toggle();
-    if(!isOpen) {
-        unselectAllMarkers();
-    }
-}
-
-function recenterMap() {
-    map.fitBounds(latLngs)
-}
-
-function unselectAllMarkers() {
-    markers.forEach((marker) => {
-        marker.setIcon(unselectedIcon)
-    })
-}
-
-function preloadImage(imageUrl) {
-    console.log(`preloading ${imageUrl}`)
-    let img = new Image()
-    img.src = imageUrl
-}
-
-function handleImageUrl(imageUrl) {
-    if (imageUrl == '') {
-        return ''
-    }
-    const urlMatch = imageUrl.match(GSHEETS_REGEX)
-    return urlMatch ? `https://drive.google.com/uc?id=${urlMatch[1]}` : imageUrl
-}
-
-window.fadeIn = function (obj) {
-    console.log('fade in')
-    $(obj).fadeIn().css("display", "block");
-}
-
-// Next/previous controls
-window.plusSlides = function (n) {
-    showSlides((slideIndex += n))
-}
-
-function showSlides(n) {
-    let slides = $('.slideshow-slide')
-    slides.length <= 1
-        ? $('.plusSlides-button').hide()
-        : $('.plusSlides-button').show()
-    if (n > slides.length) {
-        slideIndex = 1
-    }
-    if (n < 1) {
-        slideIndex = slides.length
-    }
-    for (let i = 0; i < slides.length; i++) {
-        $(slides[i]).hide()
-    }
-    $(slides[slideIndex - 1]).show()
-}
-
-// Set up map
-var map = L.map('map').setView(KYARO_COORDINATES, 5)
-map.zoomControl.setPosition('topright')
-L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    maxZoom: 19,
-    attribution:
-        '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-}).addTo(map)
-
-const unselectedIcon = L.icon({
-    iconUrl: '/assets/images/unselected.svg',
-    iconSize: [34 * 1.49, 46 * 1.49], // size of the icon
-    iconAnchor: [17, 46] // changed marker icon position
+const current_configuration = {}
+const BASE_CONFIGS = [];
+CONFIGS_ARRAY.forEach((config) => {
+    config.options = commaSeparatedStrToArray(config.options)
+    config.color_dependent = config.color_dependent === 'TRUE';
+	if (config.type == "base") {
+		BASE_CONFIGS.push(config)
+	} else {
+		current_configuration[config.name] = false;
+	}
+	CONFIGS_OBJECT[config.name] = config;
 })
 
-const selectedIcon = L.icon({
-    iconUrl: '/assets/images/selected.svg',
-    iconSize: [80, 80], // size of the icon
-    iconAnchor: [33.5, 51.5] // changed marker icon position
-})
+// fetch(GSHEETS_URL)
+//     .then((response) => response.json())
+//     .then((data) => {
 
-// onclicks
-$('#map-overlay-close-button').click(() => toggleMapOverlay())
-$('#map-recenter-button').click(() => recenterMap())
-map.on('click', () => {
-    isOpen ? toggleMapOverlay() : ''
-})
-$('#plusSlides-button-prev').click(() => plusSlides(-1))
-$('#plusSlides-button-next').click(() => plusSlides(1))
+//     })
 
-fetch(GSHEETS_URL)
-    .then((response) => response.json())
-    .then((data) => {
-        console.log(data)
-        data.forEach((user, i) => {
-            console.log(i)
+// insert config groups into DOM
+let html_to_insert = ''
+CONFIGS_ARRAY.forEach((config) => {
+    html_to_insert += '<div class="pb-configs__config-container">'
 
-            for (let i = 1; i <= MAX_NUM_IMAGES; i++) {
-                if (user[`image_${i}`]) {
-                    user[`image_${i}`] = handleImageUrl(user[`image_${i}`])
-                    // preloadImage(user[`image_${i}`])
-                }
-            }
-
-            var currentMarker = L.marker([user.latitude, user.longitude], {
-                icon: unselectedIcon
-            }).addTo(map)
-
-            markers.push(currentMarker)
-            latLngs.push([user.latitude, user.longitude])
-
-            currentMarker.on('click', () => {
-                console.log(`marker ${i} clicked`)
-
-                // Change map overlay content
-                $('#map-content-name').text(user.name)
-                $('#map-content-description').html(user.description)
-                
-                // Insert images into slideshow
-                $('.slideshow-slides-container').empty() // remove old images
-                for (let i = 1; i <= MAX_NUM_IMAGES; i++) {
-                    if (user[`image_${i}`]) {
-                        $('.slideshow-slides-container').append(`
-                            <div class="slideshow-slide fade">
-                                <img
-                                    src="${user[`image_${i}`]}" onload="fadeIn(this)"/>
-                            </div>`)
-                    }
-                }
-                slideIndex = 1
-                showSlides(slideIndex)
-
-                // Handle multiple images vs 1
-                // $('#map-photo').hide()
-                // $('#map-photo').attr('src', '')
-                // $('#map-photo').attr('src', user.image_1)
-
-                // Determine whether to toggle overlay
-                if (!isOpen || selectedMarkerId == i) {
-                    toggleMapOverlay()
-                }
-
-                // Set all other markers to unselected icon
-                unselectAllMarkers();
-                // Set current marker to selected icon
-                currentMarker.setIcon(selectedIcon)
-
-                map.panTo([
-                    parseFloat(user.latitude),
-                    parseFloat(user.longitude)
-                ])
-
-                // Update selected marker ID
-                selectedMarkerId = i
-            })
+    if (config.option_type == 'multiple_choice') {
+        html_to_insert += `<h4 class="pb-configs__title">${config.name.replace(
+            '_',
+            ' '
+        )}</h4>`
+        config.options.forEach((option) => {
+            html_to_insert += `
+        <input type="radio" name="${config.name}" value="${option}">
+        <label for="blue">${option}</label>
+      `
         })
+    } else if (config.option_type == 'true_false') {
+        html_to_insert += `
+      <input type="checkbox" name="${config.name}" value="${config.name}"><label for="${config.name}">${config.name}</label>
+    `
+    }
+    html_to_insert += '</div>'
+})
+$('#pb-configs__form').append(html_to_insert)
 
-        recenterMap()
-    })
+
+// todo select values based on js current configuration
+// auto select the first option in each base config
+BASE_CONFIGS.forEach((config) => {
+	const first_option = config.options[0]
+	current_configuration[config.name] = first_option;
+	$(`input[type=radio][name=${config.name}][value=${first_option}]`).prop("checked", true);
+})
+
+
+function commaSeparatedStrToArray(str) {
+    return str.replace(/\s+/g, '').split(',')
+}
+
+// handle switching base image
+// TODO this will not work for MC non overlays
+$('input[type=radio]').on('change', function () {
+    const config_name = $(this).prop('name')
+    current_configuration[config_name] = $(this).val()
+    updateBaseImage()
+})
+function updateBaseImage() {
+    console.log(current_configuration)
+	const image_slug = `${current_configuration.color}-${current_configuration.fabric}-${current_configuration.seat_back}.png`
+	console.log(image_slug)
+    $('#product-image__base').attr(
+        'src',
+        `/assets/images/${image_slug}`
+    )
+}
+
+// TODO handle overlays for MC
+
+// handle adding overlays
+$('input[type=checkbox]').on('change', function () {
+    const config_name = $(this).prop('name')
+	if (current_configuration[config_name]) {
+		// unchecking
+		// hide overlay if already exists
+		$(`#product-image__${config_name}`).remove();
+	} else {
+		// checking
+		
+		// check if config is color dependent
+		const image_slug = CONFIGS_OBJECT[config_name].color_dependent ? `${current_configuration.color}-${config_name}`: config_name;
+
+		$("#pb-image-container").prepend(`
+			<img id="product-image__${config_name}" class="product-image product-image__overlay" src="/assets/images/${image_slug}.png">
+		`)
+	}
+	
+	current_configuration[config_name] = $(this).prop('checked')
+    updateOverlays()
+})
+
+// TODO update color dependent overlays when color switches
+function updateOverlays() {
+	console.log('updating overlays')
+	console.log(current_configuration)
+
+}
+
+updateBaseImage()
