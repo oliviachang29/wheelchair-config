@@ -8,12 +8,16 @@ const GSHEETS_URL =
 const CONFIGS_GSHEETS_URL = `${GSHEETS_URL}/config%20panel`
 const IMAGES_GSHEETS_URL = `${GSHEETS_URL}/images_public`
 
-let CONFIGS_ARRAY, IMAGE_URLS
-let tabs
+// const CONFIGS_ARRAY = JSON.parse(
+// 	'[{"":"","name":"color","type":"base","parent":"","parent_dependency":"","option_type":"multiple_choice","color_dependent":"TRUE","options":"orange, red, blue","number of options":"3"},{"":"","name":"fabric","type":"base","parent":"","parent_dependency":"","option_type":"multiple_choice","color_dependent":"TRUE","options":"solid, kitenge","number of options":"2"},{"":"","name":"seat_back","type":"base","parent":"","parent_dependency":"","option_type":"multiple_choice","color_dependent":"TRUE","options":"hard_seat_back, soft_seat_back","number of options":"2"},{"":"","name":"table","type":"overlay","parent":"","parent_dependency":"","option_type":"true_false","color_dependent":"TRUE","options":"yes, no","number of options":"2"},{"":"","name":"tricycle_attachment","type":"overlay","parent":"seat back","parent_dependency":"soft_seat_back","option_type":"true_false","color_dependent":"TRUE","options":"yes, no","number of options":"2"},{"":"","name":"headrest","type":"overlay","parent":"seat back","parent_dependency":"hard_seat_back","option_type":"true_false","color_dependent":"TRUE","options":"yes, no","number of options":"2"},{"":"","name":"harness","type":"overlay","parent":"seat back","parent_dependency":"hard_seat_back","option_type":"true_false","color_dependent":"FALSE","options":"yes, no","number of options":"2"},{"":"","name":"lateral_support","type":"overlay","parent":"seat back","parent_dependency":"hard_seat_back","option_type":"true_false","color_dependent":"FALSE","options":"yes, no","number of options":"2"},{"":"","name":"hip_belt","type":"overlay","parent":"seat back","parent_dependency":"hard_seat_back","option_type":"true_false","color_dependent":"FALSE","options":"yes, no","number of options":"2"},{"":"","name":"knee_separator","type":"overlay","parent":"","parent_dependency":"","option_type":"true_false","color_dependent":"FALSE","options":"yes, no","number of options":"2"}]'
+// )
+// const CONFIGS_ARRAY = JSON.parse(
+//     '[{"":"","name":"color","type":"base","is_parent":"FALSE","parent_config":"","parent_dependency_value":"","option_type":"multiple_choice","color_dependent":"TRUE","options":"orange, red, blue","number of options":"3"},{"":"","name":"fabric","type":"base","is_parent":"FALSE","parent_config":"","parent_dependency_value":"","option_type":"multiple_choice","color_dependent":"TRUE","options":"solid, kitenge","number of options":"2"},{"":"","name":"seat_back","type":"base","is_parent":"TRUE","parent_config":"","parent_dependency_value":"","option_type":"multiple_choice","color_dependent":"TRUE","options":"hard_seat_back, soft_seat_back","number of options":"2"},{"":"","name":"tf_color","type":"overlay","is_parent":"FALSE","parent_config":"","parent_dependency_value":"","option_type":"true_false","color_dependent":"TRUE","options":"yes, no","number of options":"2"},{"":"","name":"mc_nocolor","type":"overlay","is_parent":"FALSE","parent_config":"","parent_dependency_value":"","option_type":"multiple_choice","color_dependent":"FALSE","options":"small,large","number of options":"3"},{"":"","name":"mc_color","type":"overlay","is_parent":"FALSE","parent_config":"seat_back","parent_dependency_value":"soft_seat_back","option_type":"multiple_choice","color_dependent":"TRUE","options":"small,large","number of options":"2"},{"":"","name":"tf_nocolor","type":"overlay","is_parent":"FALSE","parent_config":"seat_back","parent_dependency_value":"hard_seat_back","option_type":"true_false","color_dependent":"FALSE","options":"yes, no","number of options":"2"}]'
+// )
+let CONFIGS_ARRAY, IMAGE_URLS, tabs
 const CONFIGS_OBJECT = {}
 const BASE_CONFIGS = []
 const OVERLAY_CONFIGS = []
-const preloaded_images = {};
 
 const current_configuration = {}
 let current_slide_index = 0
@@ -57,12 +61,9 @@ function getOverlaySlug(config_name, custom_configuration = {}) {
 }
 
 function preloadImage(image_url) {
-	if (!preloaded_images[image_url]) {
-		console.log(`preloading ${image_url}`)
-		let img = new Image()
-		img.src = image_url
-		preloaded_images[image_url] = true;
-	}
+    console.log(`preloading ${image_url}`)
+    // let img = new Image()
+    // img.src = image_url
 }
 
 function getBaseConfigImageURLs(config_to_load_index) {
@@ -120,25 +121,23 @@ function loadSlideImages(slide_index_to_load) {
 }
 
 function getImageURLFromSlug(image_slug) {
-    // console.log(IMAGE_URLS[image_slug])
-    return IMAGE_URLS[image_slug]
+	// console.log(IMAGE_URLS[image_slug])
+	return IMAGE_URLS[image_slug]
     // return `/assets/images/${image_slug}.png`
 }
 
+// TODO this does not work
 function updateBaseImage() {
-    let image_slug = ''
-    BASE_CONFIGS.forEach((config, i) => {
-        image_slug += current_configuration[config.name]
-        if (i < BASE_CONFIGS.length - 1) {
-            image_slug += '-'
-        }
-    })
-	$('#product-image__base')
-		.fadeOut(400, function() {
-			$(this).attr('src', getImageURLFromSlug(image_slug))
-		})
-		.fadeIn(400);
-    
+	let image_slug = '';
+	BASE_CONFIGS.forEach((config, i) => {
+		console.log(`base config ${config} with value ${current_configuration[config.name]}`)
+		image_slug += current_configuration[config.name]
+		if (i < BASE_CONFIGS.length - 1) {
+			image_slug += "-"
+		}
+	})
+	console.log(`updating base image with value ${image_slug} and url ${getImageURLFromSlug(image_slug)}`)
+    $('#product-image__base').attr('src', getImageURLFromSlug(image_slug))
 }
 
 function updateOverlay(config_name) {
@@ -197,6 +196,61 @@ function showSlides(n) {
     $('.pb-configs__slide-container').hide()
     $(slides[current_slide_index]).fadeIn()
 }
+
+/** ============================ */
+/** =====  EVENT HANDLERS  ===== */
+/** ============================ */
+
+$('#plusSlides-button-prev').click(() => plusSlides(-1))
+$('#plusSlides-button-next').click(() => plusSlides(1))
+
+// handle switching base image
+$('input[type=radio][data-config-type=base]').on('change', function () {
+    const config_name = $(this).prop('name')
+    current_configuration[config_name] = $(this).val()
+	console.log('base image switched')
+    updateBaseImage()
+})
+
+// handle color changing
+$('input[name=color]').on('change', function () {
+    $('img[data-color-dependent=true]').each(function () {
+        $(this).attr('src', getOverlaySlug($(this).attr('data-config-name')))
+    })
+})
+
+// handle overlay add/remove
+$('input[data-config-type=overlay]').on('change', function () {
+    const config_name = $(this).prop('name')
+    current_configuration[config_name] = $(this).prop(
+        CONFIGS_OBJECT[config_name].option_type == 'multiple_choice'
+            ? 'value'
+            : 'checked'
+    )
+    updateOverlay(config_name)
+})
+
+// handle hide/show children of parent configs
+$('input[data-is-parent=true]').on('change', function () {
+    // name is always config name
+    const config_name = $(this).prop('name')
+
+    // remove overlays from other option
+    $(`img[data-parent-config=${config_name}]`).each(function () {
+        $(this).hide()
+    })
+
+    // hide/show divs containing configs
+    $(`.pb-configs__config-container[data-parent-config=${config_name}`).each(
+        function () {
+            // show if parent dependency value matches current input value
+            current_configuration[config_name] ==
+            $(this).attr('data-parent-dependency-value')
+                ? $(this).show()
+                : $(this).hide()
+        }
+    )
+})
 
 /** ============================ */
 /** ========  START   ========== */
@@ -324,69 +378,11 @@ fetchGSheetsData()
 
         tabs = $('.pb-configs__tab')
 
-        console.log(current_configuration)
+		console.log(current_configuration)
         updateBaseImage()
         $(tabs[0]).addClass('active')
         showSlides(current_slide_index)
         loadSlideImages(current_slide_index)
-
-        /** ============================ */
-        /** =====  EVENT HANDLERS  ===== */
-        /** ============================ */
-
-        $('#plusSlides-button-prev').click(() => plusSlides(-1))
-        $('#plusSlides-button-next').click(() => plusSlides(1))
-
-        // handle switching base image
-        $('input[type=radio][data-config-type=base]').on('change', function () {
-            const config_name = $(this).prop('name')
-            current_configuration[config_name] = $(this).val()
-            console.log('base image switched')
-            updateBaseImage()
-        })
-
-        // handle color changing
-        $('input[name=color]').on('change', function () {
-            $('img[data-color-dependent=true]').each(function () {
-                $(this).attr(
-                    'src',
-                    getOverlaySlug($(this).attr('data-config-name'))
-                )
-            })
-        })
-
-        // handle overlay add/remove
-        $('input[data-config-type=overlay]').on('change', function () {
-            const config_name = $(this).prop('name')
-            current_configuration[config_name] = $(this).prop(
-                CONFIGS_OBJECT[config_name].option_type == 'multiple_choice'
-                    ? 'value'
-                    : 'checked'
-            )
-            updateOverlay(config_name)
-        })
-
-        // handle hide/show children of parent configs
-        $('input[data-is-parent=true]').on('change', function () {
-            // name is always config name
-            const config_name = $(this).prop('name')
-
-            // remove overlays from other option
-            $(`img[data-parent-config=${config_name}]`).each(function () {
-                $(this).hide()
-            })
-
-            // hide/show divs containing configs
-            $(
-                `.pb-configs__config-container[data-parent-config=${config_name}`
-            ).each(function () {
-                // show if parent dependency value matches current input value
-                current_configuration[config_name] ==
-                $(this).attr('data-parent-dependency-value')
-                    ? $(this).show()
-                    : $(this).hide()
-            })
-        })
     })
     .catch((error) => {
         console.error(error)

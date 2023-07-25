@@ -16,14 +16,19 @@ body {
 }
 
 #pb-container {
-    width: 90%;
     margin: 0 auto;
     display: flex;
-    flex-direction: row;
+    @media (min-width: 768px) {
+        width: 90%;
+        flex-direction: row;
+    }
+    flex-direction: column;
 }
 
 #pb-image-container {
-    width: 50%;
+    @media (min-width: 768px) {
+        width: 50%;
+    }
     position: relative;
 }
 
@@ -42,7 +47,9 @@ body {
 }
 
 #pb-configs__container {
-    width: 50%;
+    @media (min-width: 768px) {
+        width: 50%;
+    }
     padding: 0 30px;
     position: relative;
 }
