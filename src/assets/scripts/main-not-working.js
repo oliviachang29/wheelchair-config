@@ -167,7 +167,7 @@ function updateOverlay(config_name) {
     }
 }
 
-window.plusSlides = function (n) {
+window.pb-configs__plusSlides = function (n) {
     showSlides((current_slide_index += n))
     if (n > 0) {
         // if going forward a slide, load next images
@@ -181,16 +181,16 @@ window.plusSlides = function (n) {
 
 function showSlides(n) {
     let slides = $('.pb-configs__slide-container')
-    $('#plusSlides-button-next').attr('disabled', false)
-    $('#plusSlides-button-prev').attr('disabled', false)
+    $('#pb-configs__plusSlides-button-next').attr('disabled', false)
+    $('#pb-configs__plusSlides-button-prev').attr('disabled', false)
     if (n >= slides.length - 1) {
         // last slide
         current_slide_index = slides.length - 1
-        $('#plusSlides-button-next').attr('disabled', true)
+        $('#pb-configs__plusSlides-button-next').attr('disabled', true)
     } else if (n <= 0) {
         // first slide
         current_slide_index = 0
-        $('#plusSlides-button-prev').attr('disabled', true)
+        $('#pb-configs__plusSlides-button-prev').attr('disabled', true)
     }
 
     $('.pb-configs__slide-container').hide()
@@ -201,8 +201,8 @@ function showSlides(n) {
 /** =====  EVENT HANDLERS  ===== */
 /** ============================ */
 
-$('#plusSlides-button-prev').click(() => plusSlides(-1))
-$('#plusSlides-button-next').click(() => plusSlides(1))
+$('#pb-configs__plusSlides-button-prev').click(() => pb-configs__plusSlides(-1))
+$('#pb-configs__plusSlides-button-next').click(() => pb-configs__plusSlides(1))
 
 // handle switching base image
 $('input[type=radio][data-config-type=base]').on('change', function () {

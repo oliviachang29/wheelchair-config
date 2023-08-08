@@ -3,19 +3,22 @@ layout: base
 eleventyNavigation:
     key: Home
 ---
+
 <div id="pb-container">
-  <div id="pb-image-container">
-    <img class="product-image" id="product-image__base">
-  </div>
-  <div id="pb-configs__container">
-      {# <h1>Customize Your Wheelchair</h1> #}
-      <div id="pb-configs__tabs-container"></div>
-      <form id="pb-configs__form"></form>
-      
-      <div class="plusSlides-button-container">
-        <button class="plusSlides-button" id="plusSlides-button-prev">&#10094; Previous</button>
-        <button class="plusSlides-button" id="plusSlides-button-next">Next &#10095;</button>
-      </div>
+    <div id="pb-image-container">
+        <img class="product-image" id="product-image__base" onerror="this.style.display='none'"/>
     </div>
-  </div>
+
+    <div id="pb-configs__container">
+        <div id="pb-configs__tabs-container"></div>
+        <form id="pb-configs__form"></form>
+        <div class="pb-configs__plusSlides-button-container">
+            <button id="pb-configs__plusSlides-button-prev" class="pb-configs__plusSlides-button sqs-block-button-element--medium sqs-button-element--primary sqs-block-button-element">
+                &#10094; Previous
+            </button>
+            <button id="pb-configs__plusSlides-button-next" class="pb-configs__plusSlides-button sqs-block-button-element--medium sqs-button-element--primary sqs-block-button-element">
+                Next &#10095;
+            </button>
+        </div>
+    </div>
 </div>
